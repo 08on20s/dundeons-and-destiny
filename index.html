@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeons and Destiny | AD&D 2e</title>
+    <!-- Premium Fantasy Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --brown: #3e2723;
+            --gold: #d4af37;
+            --parchment: #f4e4bc;
+            --white: #ffffff;
+            --gold-glow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--black);
+            color: var(--white);
+            font-family: 'EB Garamond', serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- UI Layout --- */
+        #app-header {
+            background: linear-gradient(to bottom, #1a1a1a, var(--black));
+            border-bottom: 2px solid var(--gold);
+            padding: 10px 20px;
+            text-align: center;
+            box-shadow: var(--gold-glow);
+        }
+
+        #app-header h1 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            margin: 0;
+            letter-spacing: 4px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+        }
+
+        #main-ui {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar Ledger --- */
+        #ledger {
+            background: var(--parchment);
+            color: var(--brown);
+            border-right: 4px solid var(--gold);
+            padding: 20px;
+            overflow-y: auto;
+            background-image: url('https://www.transparenttextures.com/patterns/paper.png');
+            box-shadow: inset -10px 0 20px rgba(0,0,0,0.2);
+        }
+
+        #ledger h2 {
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            border-bottom: 2px solid var(--brown);
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .avatar-container {
+            width: 100%;
+            height: 250px;
+            border: 4px solid var(--brown);
+            background: var(--black);
+            margin-bottom: 15px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .stat-group {
+            border: 1px solid rgba(62, 39, 35, 0.2);
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* --- Story Area --- */
+        #story-container {
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://www.transparenttextures.com/patterns/dark-wood.png');
+        }
+
+        #viewport {
+            height: 45%;
+            border-bottom: 2px solid var(--gold);
+            background-size: cover;
+            background-position: center;
+            transition: opacity 1s ease-in-out;
+        }
+
+        #narration {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: var(--parchment);
+        }
+
+        /* --- Input & Buttons --- */
+        #input-area {
+            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: var(--black);
+            border: 1px solid var(--gold);
+            color: var(--white);
+            padding: 12px;
+            font-family: 'EB Garamond', serif;
+            font-size: 1.1rem;
+        }
+
+        button {
+            background: var(--brown);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            padding: 10px 20px;
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: var(--gold);
+            color: var(--black);
+        }
+
+        /* --- Dice Tray --- */
+        #dice-tray {
+            height: 100px;
+            background: var(--black);
+            border-top: 2px solid var(--gold);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 0 20px;
+        }
+
+        .die {
+            width: 55px;
+            height: 55px;
+            background: var(--brown);
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .die strong { font-size: 1.1rem; }
+        .die:hover { box-shadow: var(--gold-glow); transform: translateY(-3px); }
+
+        #roll-result {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--white);
+            text-shadow: var(--gold-glow);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--black); }
+        ::-webkit-scrollbar-thumb { background: var(--gold); }
+    </style>
+</head>
+<body>
+
+    <header id="app-header">
+        <h1>Dungeons & Destiny</h1>
+    </header>
+
+    <div id="main-ui">
+        <!-- THE LEDGER (Character Sheet) -->
+        <aside id="ledger">
+            <h2>Character Ledger</h2>
+            <div id="avatar" class="avatar-container" style="background-image: url('https://image.pollinations.ai/prompt/fantasy-adnd-character-silhouette-gold-outline')"></div>
+            
+            <div class="stat-group">
+                <div class="stat-line"><span>Name:</span> <span id="l-name">Unknown</span></div>
+                <div class="stat-line"><span>Path:</span> <span id="l-path">None</span></div>
+            </div>
+
+            <div class="stat-group">
+                <div class="stat-line"><span>THAC0:</span> <span id="l-thac0">20</span></div>
+                <div class="stat-line"><span>Armor Class:</span> <span id="l-ac">10</span></div>
+                <div class="stat-line"><span>Merit:</span> <span id="l-merit">0</span></div>
+            </div>
+
+            <div class="stat-group" id="ability-scores">
+                <p style="text-align: center; font-size: 0.8rem; margin: 0;">Scores not rolled</p>
+            </div>
+
+            <button style="width: 100%; margin-top: 10px;" onclick="roll2eStats()">Roll Ability Scores</button>
+        </aside>
+
+        <!-- THE STORY AREA -->
+        <section id="story-container">
+            <div id="viewport" style="background-image: url('https://image.pollinations.ai/prompt/cinematic-dark-medieval-tavern-with-gold-accents-oil-painting')"></div>
+            <div id="narration">
+                <p>Welcome to <strong>Dungeons and Destiny</strong>. The tavern is dimly lit, the air thick with the smell of mahogany and mystery. <strong>The Ferryman</strong> sits in the shadows, his iron coins glinting in the candlelight.</p>
+                <p>Choose your destiny to begin your journey into the realms of AD&D 2nd Edition:</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                    <button onclick="pickCampaign('Way of the Ninja')">Way of the Ninja</button>
+                    <button onclick="pickCampaign('Wonders of Waterdeep')">Wonders of Waterdeep</button>
+                    <button onclick="pickCampaign('Curse of the Undead')">Curse of Undead</button>
+                    <button onclick="pickCampaign('Thieves Guild')">Thieves Guild</button>
+                </div>
+            </div>
+            <div id="input-area" style="display:none;">
+                <input type="text" id="p-input" placeholder="What is your move, adventurer?">
+                <button onclick="handleInput()">Execute</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- THE DICE TRAY -->
+    <footer id="dice-tray">
+        <div class="die" onclick="roll(4)"><span>d4</span><strong>D4</strong></div>
+        <div class="die" onclick="roll(6)"><span>d6</span><strong>D6</strong></div>
+        <div class="die" onclick="roll(8)"><span>d8</span><strong>D8</strong></div>
+        <div class="die" onclick="roll(10)"><span>d10</span><strong>D10</strong></div>
+        <div id="roll-result">--</div>
+        <div class="die" onclick="roll(12)"><span>d12</span><strong>D12</strong></div>
+        <div class="die" onclick="roll(20)"><span>d20</span><strong>D20</strong></div>
+        <div class="die" onclick="roll(100)"><span>d%</span><strong>D100</strong></div>
+    </footer>
+
+    <script>
+        // REPLACE THIS WITH YOUR KEY FROM GOOGLE AI STUDIO
+        const API_KEY = 'PASTE_YOUR_KEY_HERE';
+
+        let game = {
+            merit: 0,
+            morality: 0,
+            campaign: '',
+            stats: {},
+            lastRoll: null
+        };
+
+        // --- DICE ENGINE ---
+        function roll(sides) {
+            const res = Math.floor(Math.random() * sides) + 1;
+            game.lastRoll = res;
+            document.getElementById('roll-result').innerText = res;
+            
+            // Add a small animation effect
+            document.getElementById('roll-result').style.opacity = 0;
+            setTimeout(() => document.getElementById('roll-result').style.opacity = 1, 50);
+        }
+
+        // --- 2e STAT ROLLER ---
+        function roll2eStats() {
+            const abilities = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+            let html = "";
+            abilities.forEach(s => {
+                const r = (Math.floor(Math.random()*6)+1) + (Math.floor(Math.random()*6)+1) + (Math.floor(Math.random()*6)+1);
+                game.stats[s] = r;
+                html += `<div class="stat-line"><span>${s}:</span> <span>${r}</span></div>`;
+            });
+            document.getElementById('ability-scores').innerHTML = html;
+        }
+
+        // --- AI DM ENGINE ---
+        async function dmQuery(prompt) {
+            if (API_KEY === 'AQ.Ab8RN6Ktxk8EtIDY4gch0507UVHRvo7p0dr2XLM6p5nCzzT97w') {
+                alert("Please add your API key to the code first!");
+                return;
+            }
+
+            const systemInstruction = `You are the DM for Dungeons and Destiny, AD&D 2e. 
+            Use THAC0, Descending AC. Current Campaign: ${game.campaign}. 
+            The Ferryman is a legendary mercenary stalker who observes from shadows. 
+            Saints get a Lucky Coin. Sinners get the Deck of Many Things. 
+            Always format the first line as [IMAGE: vivid description for image gen] followed by story text.`;
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: systemInstruction + "\nPlayer: " + prompt }] }]
+                })
+            });
+
+            const data = await response.json();
+            const text = data.candidates[0].content.parts[0].text;
+            processResponse(text);
+        }
+
+        function processResponse(rawText) {
+            // Update Image
+            const imgMatch = rawText.match(/\[IMAGE:(.*?)\]/);
+            if (imgMatch) {
+                const p = imgMatch[1].trim();
+                document.getElementById('viewport').style.backgroundImage = `url('https://image.pollinations.ai/prompt/${encodeURIComponent(p)}-dark-fantasy-oil-painting-gold-accents')`;
+                rawText = rawText.replace(imgMatch[0], '');
+            }
+
+            // Update Narration
+            document.getElementById('narration').innerHTML = `<p>${rawText.replace(/\n/g, '<br>')}</p>`;
+            document.getElementById('input-area').style.display = 'flex';
+        }
+
+        function pickCampaign(name) {
+            game.campaign = name;
+            document.getElementById('l-path').innerText = name;
+            document.getElementById('l-name').innerText = "Traveler";
+            
+            // Generate Initial Avatar
+            document.getElementById('avatar').style.backgroundImage = `url('https://image.pollinations.ai/prompt/adnd-character-portrait-${name}-cinematic-gold-rimmed')`;
+            
+            dmQuery(`I begin my journey in ${name}. Roll my starting gold and set the scene.`);
+        }
+
+        function handleInput() {
+            const val = document.getElementById('p-input').value;
+            if (!val) return;
+            const fullPrompt = game.lastRoll ? `${val} (I rolled a ${game.lastRoll})` : val;
+            dmQuery(fullPrompt);
+            document.getElementById('p-input').value = "";
+            game.lastRoll = null;
+        }
+    </script>
+</body>
+</html>
